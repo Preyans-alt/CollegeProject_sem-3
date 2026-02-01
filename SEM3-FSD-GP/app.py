@@ -1,4 +1,5 @@
 from flask import Flask,render_template,url_for,request,redirect,session,jsonify
+from werkzeug.security import generate_password_hash,check_password_hash
 from python_db_methods import MyDataMethods
 
 app = Flask(__name__)
@@ -25,7 +26,7 @@ def login_page():
             # to check user already there or not---
             if not database.getUserData(data['user_email']):
 
-                database.addUser(data['user_name'],data['user_email'],data['user_pass'])
+                database.addUser(data['user_name'],data['user_email'],generate_password_hash(data['user_pass']))
                 # to add user id in session storage---------------------
                 session['user_id'] = database.getUserData(data['user_email'])[0]
                 return redirect(url_for('user_home_page'))
@@ -33,8 +34,8 @@ def login_page():
                 return render_template('login_page.html',error={'mode':'signup','msg':'User Already Exits!!!'})
         # when signin page is open----------
         else:
-
-            if database.verifyUser(data['user_email'],data['user_pass']):
+            real_passwd = database.verifyUser(data['user_email'])
+            if check_password_hash(real_passwd,data['user_pass']):
                 # to add user id in session storage---------------------
                 session['user_id'] = database.getUserData(data['user_email'])[0]
 
@@ -193,6 +194,7 @@ def saveQuizData():
 
         return jsonify({'message':'sucessfull'})
     
+
 # to get result data ------------------
 @app.route('/showResult',methods=['POST'])
 def getResultData():
@@ -207,16 +209,15 @@ def getResultData():
 # to open certificate page for that user by the help of course_id----------
 @app.route('/certificate/<int:course_id>')
 def openCertificatePage(course_id):
-    user_name = database.getUserData2(session['user_id'])
+    user_name = database.getUserData2(session['user_id'])[0]
     user_course = database.getCourseName(course_id)
     user_score = database.getResultData(session['user_id'],course_id)['score']
     date = database.getResultData(session['user_id'],course_id)['completion_date']
     
     # to get owner name of that course-------------------------
-    owner_name = ''
-    for i in database.getEnrolledCourses(session['user_id']):
-        if i['course_id'] == course_id:
-            owner_name = database.getUserData2(i['user_id'])
+    owner_id = database.getParticularCourseDetail(course_id)[0]['user_id']
+    owner_name = database.getUserData2(owner_id)[0]
+
     return render_template('certificate.html',data = [user_name,user_course,user_score,owner_name,date])
 
 
@@ -230,10 +231,10 @@ def openCertificatels():
 @app.route('/getAllCertificate')
 def getAllCertificates():
     result = database.getResultData2(session['user_id'])
-    print(result)
     send_data = []
     for i in result:
-        send_data.append({'course_title':database.getCourseName(i['course_id']),'course_id':i['course_id']})
+        if i['score']>=50:
+            send_data.append({'course_title':database.getCourseName(i['course_id']),'course_id':i['course_id']})
     return jsonify(send_data)
     
 if __name__ == '__main__':

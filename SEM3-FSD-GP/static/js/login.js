@@ -80,7 +80,7 @@ btn.addEventListener('click',() => {
 // regex verification---------------
 const name_reg = /^[A-Za-z]{3,}$/
 const email_reg = /^(?=.{13,}$)[A-Za-z.%+-]+@gmail.com$/
-const pass_reg = /^[A-Za-z0-9@_]{6,}$/
+const pass_reg = /^[A-Za-z0-9@_]{6,8}$/
 
 // to do form validation-------------------
 form.addEventListener('submit', (e) => {
@@ -117,6 +117,12 @@ form.addEventListener('submit', (e) => {
     // Password validation--------------------
     if (pass_reg.test(user_pass.value)) {
         user_data.password = user_pass.value
+        if (user_pass.value.length<6 || user_pass.value.length>8) {
+            pass_error.innerText = 'Password Length Must be Between 6 to 8'
+        }
+        else {
+            pass_error.innerText = 'In-Valid Password Formate!!!'
+        }
         pass_error.classList.remove('show_error')
     } else {
         pass_error.classList.add('show_error')
@@ -125,6 +131,5 @@ form.addEventListener('submit', (e) => {
 
     if (!error) {
         form.submit()
-    }
-    
+    }  
 })

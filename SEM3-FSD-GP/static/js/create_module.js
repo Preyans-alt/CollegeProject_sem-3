@@ -64,6 +64,19 @@ saveQuestion.addEventListener('click',()=> {
 })
 
 
+// to show message to the user-----------------------
+// show message to the user
+function info_msg(msg, color = 'info') {
+    const mssg = `
+        <div class="alert alert-${color} alert-dismissible position-absolute mt-5 start-50 translate-middle fade show w-50"
+            style="z-index: 1055;">
+            ${msg}
+            <button type="button" class="btn-close" data-bs-dismiss="alert"></button>
+        </div>
+    `
+    document.body.insertAdjacentHTML('afterbegin', mssg)
+}
+
 const addChapter = document.getElementById('addNewChapter')
 const chapter_data_list = []
 
@@ -84,7 +97,7 @@ addChapter.addEventListener('click', () => {
 
     // Empty field validation
     if (!chapterTitle || !youtubeURL || !notesURL || !description) {
-        alert("All fields are required!")
+        info_msg("All fields are required!",'danger')
         return
     }
 
@@ -119,20 +132,20 @@ module_submit.addEventListener('click',() => {
     const module_cat = document.getElementById('module_cat').value.trim()
 
     if (!module_title || !module_des || !module_price || !module_cat) {
-        alert('None Field Should be empty!!!')
+        info_msg('None Field Should be empty!!!','danger')
         return
     }
 
     if (isNaN(module_price)) {
-        alert('Price must be in number!!!')
+        info_msg('Price must be in number!!!','danger')
         return
     }
     if (chapter_data_list.length==0) {
-        alert('Please save chapter first Or Add Chapter!!!')
+        info_msg('Please save chapter first Or Add Chapter!!!','danger')
         // return
     }
     if (final_question_list.length<2) {
-        alert('Please Enter Atleast 5 Questions!!!')
+        info_msg('Please Enter Atleast 5 Questions!!!','danger')
         return
     }
 
@@ -154,9 +167,9 @@ module_submit.addEventListener('click',() => {
         body: JSON.stringify(module_data)
     }).then(res => res.json())
     .then(data => {
-        alert(data.message)
+        info_msg(data.message,'success')
     })
     .catch(error => {
-        alert(error)
+        info_msg(error,'danger')
     })
 })

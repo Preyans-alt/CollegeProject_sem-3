@@ -12,6 +12,7 @@ function showMyCertificate(course_name,course_id) {
 // to get the list of certificate of that users--------------------
 fetch('/getAllCertificate').then(e=>e.json())
 .then(data => {
+    console.log(data)
     for (const i of data) {
         showMyCertificate(i.course_title,i.course_id)
     }

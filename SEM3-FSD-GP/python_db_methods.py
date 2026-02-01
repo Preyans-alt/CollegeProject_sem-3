@@ -1,6 +1,6 @@
 import psycopg2
 import psycopg2.extras
-
+from werkzeug.security import check_password_hash
 
 class MyDataMethods:
 
@@ -27,7 +27,7 @@ class MyDataMethods:
 
 
     # use to verify user data from signin page------
-    def verifyUser(self, user_email, user_password):
+    def verifyUser(self, user_email):
         db = self.dataBase()
         cursor = db.cursor()
 
@@ -42,7 +42,7 @@ class MyDataMethods:
             return False
 
         real_pass = data[0]
-        return real_pass == user_password
+        return real_pass
         
 
     # and to verify that user is already exit or not for signup page to prevent to create duplicate users-------
@@ -163,6 +163,21 @@ class MyDataMethods:
 
         return data
     
+    # to send particular course details--------------------------------
+    # use to get owner name in certificate-------------------------
+    def getParticularCourseDetail(self,course_id):
+        db = self.dataBase()
+        cursor = db.cursor(cursor_factory=psycopg2.extras.RealDictCursor)
+
+        query = 'SELECT * FROM COURSES WHERE COURSE_ID=%s'
+        cursor.execute(query,(course_id,))
+
+        data = cursor.fetchall()
+        cursor.close()
+        db.close()
+
+        return data
+    
 
     # to get course progress0----------------------------------
     def getCourseProgress(self,user_id,course_id):
@@ -194,10 +209,16 @@ class MyDataMethods:
         db = self.dataBase()
         cursor = db.cursor()
 
-        query = 'INSERT INTO ENROLLMENT (user_id,course_id) values (%s,%s)'
+        query = 'SELECT * FROM ENROLLMENT WHERE USER_ID=%s AND COURSE_ID=%s'
         cursor.execute(query, (user_id,course_id))
+        get_data = cursor.fetchall()
 
-        db.commit()
+        if not get_data:
+            query = 'INSERT INTO ENROLLMENT (user_id,course_id) values (%s,%s)'
+            cursor.execute(query, (user_id,course_id))
+
+            db.commit()
+            
         cursor.close()
         db.close()
         
@@ -305,4 +326,4 @@ class MyDataMethods:
 
 if __name__ == '__main__':
     xx = MyDataMethods()
-    print(xx.getCourseName(3))
+    print(xx.getParticularCourseDetail(3))

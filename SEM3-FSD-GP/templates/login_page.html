@@ -37,11 +37,11 @@
 
                     <label for="pass">Password</label>
                     <input type="text" placeholder="Enter Password (@,_,0-9,a-z,A-Z)..." id="user_pass" name="user_pass" required>
-                    <span class="error" id="pass_error">In Valid Password Formate!!!</span>
+                    <span class="error" id="pass_error">In-Valid Password Formate!!!</span>
 
 
                     <button type="submit" id="sub_btn">Sign In</button>
-                    <button style="background-color: white; color: blue; margin: 2px;" id="btn">Sign up</button>
+                    <button type="button" style="background-color: white; color: blue; margin: 2px;" id="btn">Sign up</button>
 
                     <!-- to get mode of the form -- signup or signin -->
                     <input type="hidden" id="form_mode" value="{{ error.mode }}">

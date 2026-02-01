@@ -12,15 +12,15 @@ const user_progress_score = document.getElementsByClassName('progress-score')
 // show message to the user
 function info_msg(msg, color = 'info') {
     const mssg = `
-        <div class="alert alert-${color} alert-dismissible fade show position-fixed top-0 end-0 m-3" role="alert">
+        <div class="alert alert-${color} alert-dismissible position-absolute mt-5 start-50 translate-middle fade show w-50"
+            style="z-index: 1055;">
             ${msg}
             <button type="button" class="btn-close" data-bs-dismiss="alert"></button>
         </div>
     `
 
-    document.body.insertAdjacentHTML('beforeend', mssg)
+    document.body.insertAdjacentHTML('afterbegin', mssg)
 }
-
 
 // to set user_name for the page--------------
 function setUserName(user_name=null) {
@@ -169,4 +169,3 @@ function openCertificate_ls(btn) {
     // to opne the page of that id--------
     window.location.href = `/myCertificates/${course_id}`
 }
-
