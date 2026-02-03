@@ -122,7 +122,7 @@ function loadQuestion(question,opta,optb,optc,optd) {
 // to get quiz data ------------------------------
 
 // to start timer timer----------
-let totalTime = 1 * 60; // 5 minutes (in seconds)
+let totalTime = 1 * 60; // 1 minutes
 let timerInterval = null;
 
 // ready is used to know that it is allowed to start timer or not

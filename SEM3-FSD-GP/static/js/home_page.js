@@ -106,8 +106,9 @@ fetch('/user/data').then(e => e.json())
 // to get user_enrolled courses data-------------------
 fetch('/user_courses/data').then(e => e.json())
 .then(data => {
-    enroll_count.innerText = data.length-1
-    complete_count.innerText = data[data.length-1].completed
+    enroll_count.innerText = data.length-2
+    complete_count.innerText = data[data.length-2].completed
+    certi_count.innerText = data[data.length-1].certificate_count
 
     // console.log(data)
     if (data.length===0) {
@@ -115,7 +116,7 @@ fetch('/user_courses/data').then(e => e.json())
         return
     }
 
-    for (let index = 0; index < data.length-1; index++) {
+    for (let index = 0; index < data.length-2; index++) {
         key = data[index]
         showUserCourse(key.course_title,key.course_progress,key.course_id)
     }

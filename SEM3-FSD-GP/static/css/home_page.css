@@ -286,7 +286,29 @@ nav li:hover {
     box-shadow: var(--shadow-lg);
 }
 
-
+/* for course packages-------------------------------- */
+.package-box {
+    border-radius: 14px;
+    transition: 0.3s;
+    border: 1px solid #e0e6f5;
+}
+.package-box:hover {
+    transform: translateY(-6px);
+    box-shadow: 0 12px 25px rgba(13,110,253,0.15);
+}
+.price {
+    font-size: 2rem;
+    font-weight: bold;
+    color: #0d6efd;
+}
+.points {
+    font-size: 1.1rem;
+    color: #555;
+}
+.elite {
+    border: 2px solid #0d6efd;
+    background-color: #f0f6ff;
+}
 
 /* footer seection of page------------------------------------- */
 .footer {
@@ -425,3 +447,4 @@ nav li:hover {
         margin-bottom: 10px;
     }
 }
+

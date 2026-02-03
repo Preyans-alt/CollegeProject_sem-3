@@ -1,6 +1,5 @@
 import psycopg2
 import psycopg2.extras
-from werkzeug.security import check_password_hash
 
 class MyDataMethods:
 
@@ -306,10 +305,8 @@ class MyDataMethods:
         data = cursor.fetchall()
         cursor.close()
         db.close()
-
         return data
     
-
     def addResultData(self,user_id,course_id,score):
         if not self.getResultData(user_id,course_id):
             db = self.dataBase()
@@ -322,6 +319,44 @@ class MyDataMethods:
             db.close()
         else:
             return
+    
+
+    # for user balance part--------------------------------------------
+    # to add amount in user---------------------------
+    def addBalance(self,user_id,amount):
+        db = self.dataBase()
+        cursor = db.cursor()
+
+        query = 'INSERT INTO BALANCE (USER_ID,AMOUNT) VALUES (%s,%s)'
+        cursor.execute(query,(user_id,amount))
+        db.commit()
+        cursor.close()
+        db.close()
+    
+    # to get balance data in form of tupple----------------------------
+    def getBalance(self,user_id):
+        db = self.dataBase()
+        cursor = db.cursor()
+        query = 'SELECT AMOUNT FROM BALANCE WHERE USER_ID=%s'
+        cursor.execute(query,(user_id,))
+        data = cursor.fetchone()
+        cursor.close()
+        db.close()
+        if data:
+            return data
+        else:
+            return 0
+    
+    # if user already has amount in balance the to update it -------------------
+    def updateBalance(self,user_id,amount):
+        db = self.dataBase()
+        cursor = db.cursor()
+
+        query = 'UPDATE BALANCE SET AMOUNT=%s WHERE USER_ID=%s'
+        cursor.execute(query,(amount,user_id))
+        db.commit()
+        cursor.close()
+        db.close()
 
 
 if __name__ == '__main__':

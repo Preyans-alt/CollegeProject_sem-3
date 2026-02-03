@@ -35,7 +35,7 @@ def login_page():
         # when signin page is open----------
         else:
             real_passwd = database.verifyUser(data['user_email'])
-            if check_password_hash(real_passwd,data['user_pass']):
+            if real_passwd and check_password_hash(real_passwd,data['user_pass']):
                 # to add user id in session storage---------------------
                 session['user_id'] = database.getUserData(data['user_email'])[0]
 
@@ -49,8 +49,8 @@ def login_page():
 
 @app.route('/home')
 def user_home_page():
-    if 'user_id' not in session:
-        return ('<h1>No user Founded!</h1>')
+    # if 'user_id' not in session:
+    #     return ('<h1>No user Founded!</h1>')
     
     return render_template('home_page.html')
 
@@ -109,6 +109,11 @@ def toSendUserEnrolledCourse():
             'course_progress': progress
         })
     course_data.append({'completed':compelted_count})
+
+    # to give certificate count of that users--------------
+    certificate_count = getAllCertificates()
+    course_data.append({'certificate_count':len(certificate_count.get_json())})
+
     return jsonify(course_data)
 
 
@@ -227,6 +232,7 @@ def openCertificatels():
     return render_template('certificate_list.html')
 
 
+
 # to show the list of all the certicate of that user-------------------
 @app.route('/getAllCertificate')
 def getAllCertificates():
@@ -236,6 +242,24 @@ def getAllCertificates():
         if i['score']>=50:
             send_data.append({'course_title':database.getCourseName(i['course_id']),'course_id':i['course_id']})
     return jsonify(send_data)
-    
+
+
+# for user profile---------------------------------
+@app.route('/userprofile')
+def show_profile():
+    user_id = session['user_id']
+    user_name = database.getUserData2(user_id)
+    balance = database.getBalance(user_id)
+    course_completed = toSendUserEnrolledCourse().get_json()['compelted_count']
+    active_course = len(toSendUserEnrolledCourse().get_json())-2
+    return render_template('profile.html',data = [user_name,balance,course_completed,active_course])
+
+# when user log out---------------------------------
+@app.route('/logout')
+def logout():
+    # removes all session data----
+    session.clear()          
+    return render_template('login_page.html')
+
 if __name__ == '__main__':
     app.run(debug=True)
