@@ -215,8 +215,8 @@ class MyDataMethods:
         if not get_data:
             query = 'INSERT INTO ENROLLMENT (user_id,course_id) values (%s,%s)'
             cursor.execute(query, (user_id,course_id))
-
             db.commit()
+
             
         cursor.close()
         db.close()
@@ -345,14 +345,19 @@ class MyDataMethods:
         if data:
             return data
         else:
-            return 0
+            return [0]
     
     # if user already has amount in balance the to update it -------------------
-    def updateBalance(self,user_id,amount):
+    # when user do any process like buy course ,sell course,buy points-----------
+    def updateBalance(self,user_id,amount,reduce=True):
         db = self.dataBase()
         cursor = db.cursor()
+        # if reduce is True then it means user user want to reduce balance---------
+        if reduce:
+            query = 'UPDATE BALANCE SET AMOUNT=AMOUNT-%s WHERE USER_ID=%s'
+        else:
+            query = 'UPDATE BALANCE SET AMOUNT=AMOUNT+%s WHERE USER_ID=%s'
 
-        query = 'UPDATE BALANCE SET AMOUNT=%s WHERE USER_ID=%s'
         cursor.execute(query,(amount,user_id))
         db.commit()
         cursor.close()
@@ -361,4 +366,5 @@ class MyDataMethods:
 
 if __name__ == '__main__':
     xx = MyDataMethods()
-    print(xx.getParticularCourseDetail(3))
+    xx.updateBalance(8)
+    print(xx.getBalance(8))

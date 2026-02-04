@@ -9,6 +9,7 @@
     <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/js/bootstrap.bundle.min.js"></script>
 
     <link href="https://cdn.jsdelivr.net/npm/bootstrap-icons/font/bootstrap-icons.css" rel="stylesheet">
+    <link rel="stylesheet" href="{{ url_for('static',filename='css/home_page.css') }}">
 
     <style>
         body {
@@ -53,6 +54,7 @@
 </head>
 <body>
 
+    {% include 'navbar.html' %}
     <div class="container my-5">
 
         <!-- to show user prfile-------------- -->
@@ -64,7 +66,7 @@
                             <i class="bi bi-person-fill"></i>
                         </div>
                         <div>
-                            <h3 class="mb-0" id="username">John Doe</h3>
+                            <h3 class="mb-0" id="username">{{ data[0] }}</h3>
                             <small class="opacity-75">EduSphere User</small>
                         </div>
                     </div>
@@ -82,7 +84,7 @@
                 <div class="row text-center">
                     <div class="col-md-6">
                         <p class="text-muted mb-1">Total Balance</p>
-                        <p class="info-value text-primary">{{}}</p>
+                        <p class="info-value text-primary">{{ data[1] }}</p>
                     </div>
                 </div>
             </div>
@@ -98,11 +100,11 @@
                 <div class="row text-center">
                     <div class="col-md-6">
                         <p class="text-muted mb-1">Courses Completed</p>
-                        <p class="info-value text-primary">12</p>
+                        <p class="info-value text-primary">{{ data[2] }}</p>
                     </div>
                     <div class="col-md-6">
                         <p class="text-muted mb-1">Active Courses</p>
-                        <p class="info-value text-primary">3</p>
+                        <p class="info-value text-primary">{{ data[3] }}</p>
                     </div>
                 </div>
             </div>

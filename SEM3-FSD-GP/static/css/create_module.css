@@ -84,3 +84,13 @@ form label {
         width: 85%;
     }
 }
+.floating-sidebar .card {
+    transition: all 0.3s ease-in-out;
+}
+
+@media (min-width: 992px) {
+    .floating-sidebar .card:hover {
+        transform: translateY(-5px) scale(1.01);
+        box-shadow: 0 15px 30px -5px rgba(0, 0, 0, 0.15) !important;
+    }
+}

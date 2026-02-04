@@ -49,8 +49,8 @@ def login_page():
 
 @app.route('/home')
 def user_home_page():
-    # if 'user_id' not in session:
-    #     return ('<h1>No user Founded!</h1>')
+    if 'user_id' not in session:
+        return ('<h1>No user Founded!</h1>')
     
     return render_template('home_page.html')
 
@@ -140,8 +140,22 @@ def enrollCourses():
     if request.method == 'POST':
         data = request.get_json()
         course_id = data['courseId']
-        database.addCourseToUser(session['user_id'],int(course_id))
-        return jsonify({'message':'Course Enrolled Successfully'})
+        course_details = database.getParticularCourseDetail(course_id)[0]
+        course_price = course_details['course_price']
+        user_balance = database.getBalance(session['user_id'])
+
+        # to verify user and course price----------------
+        if course_price>user_balance[0]:
+            return jsonify({'message':'Not Enough Points!!!'})
+        else:
+            # to reduce points from buyer balance------------
+            database.updateBalance(session['user_id'],course_price)
+            database.addCourseToUser(session['user_id'],int(course_id))
+
+            # and to add points to seller balance------------
+            owner_id = course_details['user_id']
+            database.updateBalance(owner_id,course_price,reduce=False)
+            return jsonify({'message':'Course Enrolled Successfully'})
     
     return jsonify({'message':'Fails To Enroll Course!!!'})
 
@@ -250,16 +264,36 @@ def show_profile():
     user_id = session['user_id']
     user_name = database.getUserData2(user_id)
     balance = database.getBalance(user_id)
-    course_completed = toSendUserEnrolledCourse().get_json()['compelted_count']
-    active_course = len(toSendUserEnrolledCourse().get_json())-2
-    return render_template('profile.html',data = [user_name,balance,course_completed,active_course])
+    
+    course_details = toSendUserEnrolledCourse().get_json()
+    course_completed = course_details[len(course_details)-2]['completed']
+    active_course = len(toSendUserEnrolledCourse().get_json()[0:-2])
+    print(toSendUserEnrolledCourse().get_json())
+    return render_template('profile.html',data = [user_name[0],balance[0],course_completed,active_course])
 
 # when user log out---------------------------------
 @app.route('/logout')
 def logout():
     # removes all session data----
-    session.clear()          
-    return render_template('login_page.html')
+    session.clear()
+    return render_template('login_page.html',error={'mode':'signin','msg':''})
+
+# to purhcase point-------------------------------------
+@app.route('/buyPackage',methods=['POST'])
+def buyPoints():
+    if request.method == 'POST':
+        points = request.get_json()['points']
+        user_id = session['user_id']
+        # check that user had any balance or not---------------
+
+        user_balance = database.getBalance(user_id)
+        if user_balance[0]>0: #if user already had balance
+            database.updateBalance(user_id,points,reduce=False)
+
+        else: #there is no data of user balance
+            database.addBalance(user_id,points)
+        return jsonify({'message':'Successfully Buy'})
+    return jsonify({'message':'Fails To Buy'})
 
 if __name__ == '__main__':
     app.run(debug=True)

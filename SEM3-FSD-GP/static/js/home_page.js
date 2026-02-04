@@ -13,13 +13,21 @@ const user_progress_score = document.getElementsByClassName('progress-score')
 function info_msg(msg, color = 'info') {
     const mssg = `
         <div class="alert alert-${color} alert-dismissible position-absolute mt-5 start-50 translate-middle fade show w-50"
-            style="z-index: 1055;">
+             style="z-index:1055;">
             ${msg}
             <button type="button" class="btn-close" data-bs-dismiss="alert"></button>
         </div>
-    `
+    `;
 
-    document.body.insertAdjacentHTML('afterbegin', mssg)
+    document.body.insertAdjacentHTML('afterbegin', mssg);
+
+    // to remove error after 1second-------------
+    setTimeout(() => {
+        const alertEl = document.querySelector('.alert');
+        if (alertEl) {
+            bootstrap.Alert.getOrCreateInstance(alertEl).close();
+        }
+    }, 1000);
 }
 
 // to set user_name for the page--------------
@@ -152,21 +160,41 @@ function EnrollCourse(btn) {
     })
     .then(res => res.json())
     .then(data => {
-        info_msg(data.message,'success')
+        info_msg(data.message,'info')
     })
     .catch(err => console.error(err))
 }
 
 // to open the enrolled module page-----------------------------------
 function startLearning(btn) {
-    course_id = btn.getAttribute('course_id')
+    const course_id = btn.getAttribute('course_id')
     // to opne the page of that id--------
     window.location.href = `/myCourse/${course_id}`
 }
 
 // to open the all certificate list page-----------------------------------
 function openCertificate_ls(btn) {
-    course_id = btn.getAttribute('course_id')
+    const course_id = btn.getAttribute('course_id')
     // to opne the page of that id--------
     window.location.href = `/myCertificates/${course_id}`
+}
+
+
+// add points to user account when user click on btn-------------------------------
+function buyPoints(btn) {
+    const points_buy = btn.getAttribute('points')
+    console.log(points_buy)
+    fetch('/buyPackage',{
+        method: "POST",
+        headers: {
+            "Content-Type": "application/json"
+        },
+        body: JSON.stringify({
+            points: points_buy
+        })
+    }).then (e=>e.json())
+    .then(data => {
+        info_msg(data.message,'info')
+    })
+    .catch(err => console.error(err))
 }
