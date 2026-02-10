@@ -25,7 +25,7 @@ def login_page():
         if len(list(data))>=3:
             # to check user already there or not---
             if not database.getUserData(data['user_email']):
-                print('xxx')
+                # print('xxx')
                 database.addUser(data['user_name'],data['user_email'],generate_password_hash(data['user_pass']))
                 # to add user id and work in session storage---------------------
 
