@@ -1,287 +1,263 @@
-const course_title = document.getElementById('course-title')
-const course_chapters_name = document.querySelector('#course-chapters')
-const teaching_part = document.querySelector('.video-container')
-const video_title = document.querySelector('#video-title')
-const video_url = document.querySelector('iframe')
-
-const chapter_overview = document.querySelector('#overview p')
-const chapter_notes = document.querySelector('#notes_url')
-const markCompleteBtn = document.querySelector('#markCompleteBtn')
-
-
-// to display list of chapters in that courses------------
-function add_courses_name(name_list) {
-    for (const name of name_list) {
-        let btns = `
-        <button class="list-group-item list-group-item-secondary text-start mb-2 p-2 rounded" chapter_id=${name[0]}>${name[1]}</button>
-        `
-        course_chapters_name.insertAdjacentHTML('beforeEnd',btns)
-    }
-}
-
-// to handle all data of that module-----------------
-let module_data = []
-
-// to fetch data of the current module------------------------
-const current_course = course_title.getAttribute('current_course_id')
+/* ===================== COURSE PART ===================== */
+const course_title = document.getElementById('course-title');
+const course_chapters_name = document.querySelector('#course-chapters');
+const default_view = document.querySelector('.default-view')
+const teaching_part = document.querySelector('.video-container');
+const video_title = document.querySelector('#video-title');
+const video_url = document.querySelector('iframe');
+const chapter_overview = document.querySelector('#overview p');
+const chapter_notes = document.querySelector('#notes_url');
+const markCompleteBtn = document.querySelector('#markCompleteBtn');
 
 
-fetch(`/courseData/${current_course}`).then(e=>e.json())
-.then(data => {
-    course_title.innerText = data[data.length-1]
-    let chapters_name = []
-
-    for (let index = 0; index < data.length-1; index++) {
-        element = data[index]
-        chapters_name.push([element.chapter_id,element.chapter_title])
-        module_data.push(element)
-    }
-    add_courses_name(chapters_name)
-})
-
-
-
-course_chapters_name.addEventListener('click', (e) => {
-    if (e.target.tagName === 'BUTTON') {
-        
-        const chapter_id = e.target.getAttribute('chapter_id')
-        let chapter_data = []
-        
-        for (const element of module_data) {
-            if (element.chapter_id===parseInt(chapter_id)) {
-                chapter_data.push(element)
-                break
-            }
-        }
-        
-        video_title.innerHTML = chapter_data[0]['chapter_title']
-        const videoId = chapter_data[0]['chapter_video'].split('&')[0]
-        video_url.src = `https://www.youtube.com/embed/${videoId}`
-        chapter_overview.innerText = chapter_data[0]['chapter_description']
-        chapter_notes.innerText = chapter_data[0]['chapter_notes']
-        markCompleteBtn.setAttribute('chapter_id',chapter_data[0]['chapter_id'])
-        // to make teaching pary visible only when chapter is selected----------
-        teaching_part.style.visibility = 'visible'
-    }
-});
-
-
-function markComplete(btn) {
-    chapter_id = btn.getAttribute('chapter_id')
-    fetch("/chapterComplete", {
-        method: "POST",
-        headers: {
-            "Content-Type": "application/json"
-        },
-        body: JSON.stringify({
-            courseId: current_course,
-            chapterId: chapter_id
-        })
-    })
-    .then(res => res.json())
-    .then(data => {
-        alert(data.message)
-    })
-    .catch(err => console.error(err))
-}
-
-
-
-// for quiz part--------------------------------------------------------
-
-// to hide teaching_part and show quiz part----------
-function showQuizDetails() {
-    teaching_part.classList.add('d-none')
-    quiz_info_container.classList.remove('d-none')
-}
-
-
-const quiz_info_container = document.querySelector('.quiz-info-container')
-const next_btn = document.getElementById('next_btn')
-const question_borad = document.querySelector('.modal-body')
-const start_btn = document.querySelector('#start_quiz')
-
-// to make question------------
-function loadQuestion(question,opta,optb,optc,optd) {
-    const quiz_question = `
-    <div class="quiz-form">
-        <strong class="mb-2">Que. <span> ${question}</span></strong>
-
-        <div id="quiz_options">
-            <div><input type="radio" name="quiz_option" class="form-check-input" value="A"> <span>${opta}</span></div>
-            <div><input type="radio" name="quiz_option" class="form-check-input" value="B"> <span>${optb}</span></div>
-            <div><input type="radio" name="quiz_option" class="form-check-input" value="C"> <span>${optc}</span></div>
-            <div><input type="radio" name="quiz_option" class="form-check-input" value="D"> <span>${optd}</span></div>
+// to show message to user---------
+function info_msg(msg, color = 'info') {
+    const mssg = `
+        <div class="alert alert-${color} alert-dismissible position-absolute mt-5 start-50 translate-middle fade show w-50"
+             style="z-index:1055;">
+            ${msg}
+            <button type="button" class="btn-close" data-bs-dismiss="alert"></button>
         </div>
-    
-    </div>
-    `
-    question_borad.insertAdjacentHTML('beforeend',quiz_question)
-}
+    `;
 
-// to get quiz data ------------------------------
+    document.body.insertAdjacentHTML('afterbegin', mssg);
 
-// to start timer timer----------
-let totalTime = 1 * 60; // 1 minutes
-let timerInterval = null;
-
-// ready is used to know that it is allowed to start timer or not
-function startQuizTimer(data,data_len,ready) {
-    const timerEl = document.getElementById("timer");
-
-    timerInterval = setInterval(() => {
-        let minutes = Math.floor(totalTime / 60);
-        let seconds = totalTime % 60;
-
-        timerEl.textContent = `${minutes.toString().padStart(2, '0')}:${seconds.toString().padStart(2, '0')}`;
-        if (totalTime <= 0 || !ready) {
-            clearInterval(timerInterval);
-            timerEl.textContent = "00:00";
-            calculateScore(data,data_len)
-            closeQuizModal()
-            return
+    // to remove error after 1second-------------
+    setTimeout(() => {
+        const alertEl = document.querySelector('.alert');
+        if (alertEl) {
+            bootstrap.Alert.getOrCreateInstance(alertEl).close();
         }
-        totalTime--;
     }, 1000);
 }
 
-// to close modal box when time gets over-------------
-function closeQuizModal() {
-    const modalEl = document.getElementById('quiz_box');
-    const modal = bootstrap.Modal.getInstance(modalEl);
 
-    if (modal) {
-        modal.hide();
-    }
+const current_course = course_title.getAttribute('current_course_id');
+let module_data = []
+
+// Add chapter buttons
+function add_courses_name(list) {
+    list.forEach((name, index) => {
+        course_chapters_name.insertAdjacentHTML(
+            'beforeend',
+            `
+            <button class="list-group-item list-group-item-action d-flex align-items-center justify-content-between mb-2 rounded shadow-sm chapter-btn"
+                chapter_id="${name[0]}">
+                <span class="fw-semibold">
+                    <i class="bi bi-pencil-square text-primary me-2"></i>
+                    ${name[1]}
+                </span>
+                <span class="badge bg-light text-dark">▶</span>
+            </button>
+            `
+        )
+    })
 }
 
 
-// to calculate score of quiz-----------------------
-function calculateScore(data,data_len) {
-    let right = 0;
+// Fetch course data
+fetch(`/courseData/${current_course}`)
+.then(res => res.json())
+.then(data => {
+    course_title.innerText = data[data.length - 1];
+    let names = [];
 
-    for (let index = 0; index < user_answer.length; index++) {
-        if (user_answer[index] === real_answer[index]) {
-            right++
-        }
+    for (let i = 0; i < data.length - 1; i++) {
+        module_data.push(data[i]);
+        names.push([data[i].chapter_id, data[i].chapter_title]);
     }
+    add_courses_name(names);
+});
 
-    let score = (right / data_len) * 100
-    if (!data[data_len].isAttempt || pos <= data_len-1) {
-        // to submit quiz score------------
-        quizFinished(score)
-        start_btn.innerText = 'Attempt Finished!'
-    }
-    else {
-        alert('you can submit only one time!!!')
-    }
-}
+// Chapter click
+course_chapters_name.addEventListener('click', e => {
+
+    // to make chapter visible and test not-----------
+    quiz_info_container.classList.add('d-none');
+    default_view.classList.add('d-none');
+    teaching_part.classList.remove('d-none');
 
 
-// to send result of the quiz-----------------
-function quizFinished(result) {
-    fetch('/quizFinished',{
-        method:'POST',
-        headers: {
-            'Content-Type': 'application/json'
-        },
+    const chapter_id = parseInt(e.target.getAttribute('chapter_id'));
+    const chapter = module_data.find(c => c.chapter_id === chapter_id);
+
+    video_title.innerText = chapter.chapter_title;
+    video_url.src = `https://www.youtube.com/embed/${chapter.chapter_video.split('&')[0]}`;
+    chapter_overview.innerText = chapter.chapter_description;
+    chapter_notes.innerText = chapter.chapter_notes;
+    markCompleteBtn.setAttribute('chapter_id', chapter_id);
+    teaching_part.style.visibility = 'visible';
+});
+
+// Mark complete
+function markComplete(btn) {
+    fetch("/chapterComplete", {
+        method: "POST",
+        headers: {"Content-Type": "application/json"},
         body: JSON.stringify({
             courseId: current_course,
-            score: result
+            chapterId: btn.getAttribute('chapter_id')
         })
-    }).then(e=>e.json())
-    .catch(error => console.error(error))
+    })
+    .then(res => res.json())
+    .then(data => info_msg(data.message));
 }
 
+/* ===================== QUIZ PART ===================== */
 
+const quiz_info_container = document.querySelector('.quiz-info-container');
+const start_btn = document.getElementById('start_quiz');
+const prev_btn = document.getElementById('prev_btn');
+const next_btn = document.getElementById('next_btn');
+const timerEl = document.getElementById('timer');
+const attempt_left = document.getElementById('quiz_attempts')
 
+// to update quiz ui-----------------
+function quiz_progress(curr,total) {
+    curr += 1
+    document.getElementById('current_que').innerText = curr
+    document.getElementById('total_que').innerText = total
+    const perc = (curr/total)*100
+    document.getElementById('quiz_progress').style.width = perc+'%'
+}
+
+const question_text = document.getElementById('question_text');
+const radios = {
+    A: document.getElementById('radio_a'),
+    B: document.getElementById('radio_b'),
+    C: document.getElementById('radio_c'),
+    D: document.getElementById('radio_d')
+};
+
+function showQuizDetails() {
+    teaching_part.classList.add('d-none')
+    quiz_info_container.classList.remove('d-none')
+    default_view.classList.add('d-none');
+}
+
+/* ---------- Quiz State ---------- */
+let quizData = []
 let pos = 0
-const user_answer = []
-const real_answer = []
+let user_answer = []
+let real_answer = []
+let totalTime = 60
+let timerInterval = null
+let quizSubmitted = false
 
-// to show particular question------------
-function showQuestion(data) {
-    let data_len = data.length - 1
-    const q = data[pos];
-    loadQuestion(q.question_text,q.optiona,q.optionb,q.optionc,q.optiond)
+/* ---------- Load Question ---------- */
+function loadQuestion(q, savedAns = null) {
+    question_text.innerText = q.question_text
 
-    if (pos === data_len - 1) {
-        next_btn.innerText = 'Submit'
-        next_btn.setAttribute('data-bs-dismiss', 'modal')
-    } else {
-        next_btn.innerText = 'Next'
+    document.getElementById('option_a').innerText = q.optiona
+    document.getElementById('option_b').innerText = q.optionb
+    document.getElementById('option_c').innerText = q.optionc
+    document.getElementById('option_d').innerText = q.optiond
+
+    Object.values(radios).forEach(r => r.checked = false)
+
+    if (savedAns && radios[savedAns]) {
+        radios[savedAns].checked = true
     }
+
+    prev_btn.classList.toggle('d-none', pos === 0);
+    next_btn.innerText = (pos === quizData.length - 1) ? 'Submit' : 'Next'
+    // to update quiz progress bar----------
+    quiz_progress(pos,real_answer.length)
 }
 
-// main part to load question and quiz part------------------
+/* ---------- Timer ---------- */
+function startQuizTimer() {
+    clearInterval(timerInterval);
+    timerInterval = setInterval(() => {
+        let m = Math.floor(totalTime / 60);
+        let s = totalTime % 60;
+        timerEl.innerText = `${m.toString().padStart(2, '0')}:${s.toString().padStart(2, '0')}`;
+
+        if (totalTime-- <= 0) {
+            submitQuiz();
+        }
+    }, 1000)
+}
+
+/* ---------- Submit ---------- */
+function submitQuiz() {
+    // console.log(user_answer)
+    if (quizSubmitted) return
+    quizSubmitted = true
+
+    clearInterval(timerInterval)
+
+    let correct = 0
+    quizData.forEach((_, i) => {
+        if (user_answer[i] === real_answer[i]) correct++
+    });
+
+    let score = (correct / quizData.length) * 100
+
+    fetch('/quizFinished', {
+        method: 'POST',
+        headers: {'Content-Type': 'application/json'},
+        body: JSON.stringify({courseId: current_course, score})
+    });
+
+    bootstrap.Modal.getInstance(document.getElementById('quiz_box')).hide()
+
+}
+
+/* ---------- Fetch Quiz ---------- */
 fetch('/moduleQuiz', {
     method: 'POST',
-    headers: {
-        'Content-Type': 'application/json'
-    },
-    body: JSON.stringify({
-        courseId: current_course
-    })
+    headers: {'Content-Type': 'application/json'},
+    body: JSON.stringify({courseId: current_course})
 })
 .then(res => res.json())
 .then(data => {
-
-    let data_len = data.length - 1
-
-    if (data[data_len].isAttempt) {
+    const isAttempt = data[data.length - 1].isAttempt
+    if (isAttempt) {
         start_btn.innerText = 'Attempt Finished!'
-        next_btn.innerText = 'close'
-        next_btn.setAttribute('data-bs-dismiss', 'modal')
-        question_borad.innerHTML = '<h5 style="color:red;">You Already Attempt Quiz!!!</h5>'
-        document.getElementById('quiz_attempts').innerText = 0
-        startQuizTimer(data,data_len,false)
-        is_Attempt = true
-
-        // to show result report data--------------------
-        getResultData()
-        return; 
+        attempt_left.innerText = 0
+        // to stop the launch of modal when all attempts are over-------
+        start_btn.removeAttribute('data-bs-toggle')
+        return
     }
 
-    // to get real_answer of all the questions--------------------
-    for (let pos = 0; pos < data.length-1; pos++) {
-        real_answer.push(data[pos].answer)
-    }
-    // console.log(real_answer)
+    quizData = data.slice(0, -1)
+    real_answer = quizData.map(q => q.answer)
+    console.log(real_answer)
+    loadQuestion(quizData[pos]);
 
-    start_btn.addEventListener('click',() => {
-        startQuizTimer(data,data_len,true) // to start quiz timer when start btn is clicked
+    start_btn.onclick = () => {
+        totalTime = 60;
+        quizSubmitted = false
+        startQuizTimer()
+    }
+
+    document.querySelector('.modal-body').addEventListener('change', e => {
+        if (e.target.name === 'quiz_option') {
+            user_answer[pos] = e.target.value
+        }
     })
 
-    // to show first question data----------------
-    showQuestion(data);
-
-    // to get user selected option to user_answer---------
-    question_borad.addEventListener('change', (e) => {
-        if (e.target.name === 'quiz_option') {
-            user_answer[pos] = e.target.value; // 🔥 store by question index
-        }
-    });
-
-    
-    next_btn.addEventListener('click', () => {
-        const selected = document.querySelector('input[name="quiz_option"]:checked')
-        if (!selected) {
-            alert('please select option!!!')
+    next_btn.onclick = () => {
+        if (!user_answer[pos]) {
+            alert('Select an option')
             return
         }
-        else {
-            pos++
-        }
-        if (pos < data_len) { // if pos > data_len it means that all the question is printed
-            question_borad.innerHTML = ''
-            showQuestion(data);
+        if (pos === quizData.length - 1) {
+            submitQuiz()
         } else {
-            calculateScore(data,data_len)
+            pos++
+            loadQuestion(quizData[pos], user_answer[pos])
         }
-    });
-})
-.catch(err => console.error(err))
+    };
 
+    prev_btn.onclick = () => {
+        if (pos > 0) {
+            pos--
+            loadQuestion(quizData[pos], user_answer[pos])
+        }
+    };
+});
 
 // to show result report -----------------------
 // is used in getResultData fetch method to show result data--
@@ -326,11 +302,13 @@ function getResultData() {
         })
     }).then(e=>e.json())
     .then(data => {
-        // console.log(data['score'])
-        showResultReport(data['score'])
+        if (data) {
+            // console.log(data['score'])
+            showResultReport(data['score'])
+        }
     })
 }
-
+getResultData()
 // to open certificate page---------------------
 function displayCertificate(course_id) {
     window.open(`/certificate/${course_id}`, '_blank');

@@ -21,7 +21,7 @@
     {% include 'navbar.html' %}
 
     <!-- {% block content %} -->
-    <div class="greet-box">
+    <div class="greet-box" style="border-left: 5px solid #0d6efd">
         <div>
             <!-- for user name----------------------------------------- -->
             <strong>Welcome, <span id="page_user_name" style="text-transform: capitalize;">User</span> 👋</strong>
@@ -69,12 +69,12 @@
     <div style="width: 90%; margin: 6dvh auto 20px; font-size: 1.5rem; font-weight: 700; color: #1e293b;">
         <span id="mycourses"><i class="bi bi-bar-chart-line-fill text-primary me-2"></i>Learning Progress</span>
     </div>
-
-
     <!-- disply of courses enrolled by users---------------------------------------- -->
     <div class="enrolled-courses-list">
         <!-- this seciton will added by using javasctript -->
-
+         <div class="course_area container bg-info border-dark rounded d-none" id="course_area">
+            <div class="text-center p-5">No Course Enrolled!!!</div>
+        </div>
     </div>
 
 
@@ -82,11 +82,12 @@
     <div style="width: 90%; margin: 8dvh auto 20px; font-size: 1.5rem; font-weight: 700; color: #1e293b;" id="showCourses">
         <span><i class="bi bi-stars text-warning me-2"></i>Recommended For You</span>
     </div>
-    
-    
     <!-- to add all course data -------------------------------------------------- -->
     <div class="recommended-course">
         <!-- this will be created by using js--------- -->
+        <div class="course_area container bg-info border-dark rounded d-none" id="course_area">
+            <div class="text-center p-5">No Course Available!!!</div>
+        </div>
     </div>
     
     <!-- for packages section---------------------   -->
@@ -98,10 +99,11 @@
             <!-- Starter -->
             <div class="col-md-4">
                 <div class="package-box p-4 text-center bg-white">
+                    <span class="badge bg-primary mb-2">Basic</span>
                     <h4 class="fw-bold">Starter</h4>
                     <p class="price">₹99</p>
-                    <p class="points">💎 100 Points</p>
-                    <button class="btn btn-outline-primary w-100" points="100" onclick="buyPoints(this)">Buy Starter</button>
+                    <p class="points">💎 1000 Points</p>
+                    <button class="btn btn-outline-primary w-100" points="1000" onclick="buyPoints(this)">Buy Starter</button>
                 </div>
             </div>
 
@@ -111,19 +113,19 @@
                     <span class="badge bg-primary mb-2">Best Value</span>
                     <h4 class="fw-bold">Pro</h4>
                     <p class="price">₹199</p>
-                    <p class="points">💎 250 Points</p>
-                    <button class="btn btn-outline-primary w-100" points="250" onclick="buyPoints(this)">Buy Pro</button>
+                    <p class="points">💎 2500 Points</p>
+                    <button class="btn btn-outline-primary w-100" points="2500" onclick="buyPoints(this)">Buy Pro</button>
                 </div>
             </div>
 
             <!-- Elite -->
             <div class="col-md-4">
-                <div class="package-box elite p-4 text-center">
-                    <span class="badge bg-dark mb-2">Premium</span>
+                <div class="package-box p-4 text-center bg-white">
+                    <span class="badge bg-success mb-2">Premium</span>
                     <h4 class="fw-bold">Elite</h4>
                     <p class="price">₹499</p>
-                    <p class="points">💎 750 Points</p>
-                    <button class="btn btn-outline-primary w-100" points="750" onclick="buyPoints(this)">Buy Elite</button>
+                    <p class="points">💎 5000 Points</p>
+                    <button class="btn btn-outline-primary w-100" points="5000" onclick="buyPoints(this)">Buy Elite</button>
                 </div>
             </div>
 
@@ -173,7 +175,6 @@
                 <i class="bi bi-envelope-fill"></i>
                 <i class="bi bi-linkedin"></i>
                 <i class="bi bi-github"></i>
-                <i class="bi bi-instagram"></i>
             </div>
             <p>© 2026 EduSphere Inc. All rights reserved.</p>
         </div>
@@ -181,6 +182,9 @@
 
 
     <script src="{{ url_for('static',filename='js/home_page.js') }}"></script>
+
+    
+
     <!-- {% endblock %} -->
 </body>
 </html>

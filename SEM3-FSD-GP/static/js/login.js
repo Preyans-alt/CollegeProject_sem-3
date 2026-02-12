@@ -19,6 +19,7 @@ const form_mode = document.getElementById('form_mode').value
 user_data = {}
 
 let signup = false;
+// to check form mode----------
 if (form_mode === 'signup'){
     if (!document.getElementById('name-field')) {
         form.insertAdjacentHTML('afterbegin',
@@ -55,6 +56,14 @@ btn.addEventListener('click',() => {
                 </div>
                 `
             )
+            form.insertAdjacentHTML('beforeend',
+                `
+                <div id="role-check">
+                    <input type="checkbox" id="roleCheck" name='roleCheck'>
+                    <label for="roleCheck">SignUp as Institute</label>
+                </div>
+                `
+            )
         }
         submit_btn.innerText = 'Sign up'
         btn.innerText = 'Sign in'
@@ -67,8 +76,11 @@ btn.addEventListener('click',() => {
 
         // to remove name user field----------
         const nameField = document.getElementById('name-field')
+        const checkBox = document.getElementById('role-check')
+        // to remove name input field and check box
         if (nameField) {
             nameField.remove()
+            checkBox.remove()
         }
         submit_btn.innerText = 'Sign in'
         btn.innerText = 'Sign up'
@@ -79,8 +91,8 @@ btn.addEventListener('click',() => {
 
 // regex verification---------------
 const name_reg = /^[A-Za-z]{3,}$/
-const email_reg = /^(?=.{13,}$)[A-Za-z.%+-]+@gmail.com$/
-const pass_reg = /^[A-Za-z0-9@_]{6,8}$/
+const email_reg = /^(?=.{13,}$)[A-Za-z0-9.%+-]+@gmail.com$/
+const pass_reg = /^(?=.*[A-Z])[A-Za-z0-9@_]{6,8}$/
 
 // to do form validation-------------------
 form.addEventListener('submit', (e) => {
@@ -95,6 +107,8 @@ form.addEventListener('submit', (e) => {
 
         const user_name = document.getElementById('user_name')
         const name_error = document.getElementById('name_error')
+
+        
 
         if (name_reg.test(user_name.value.trim())) {
             user_data.name = user_name.value

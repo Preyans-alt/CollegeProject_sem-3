@@ -8,6 +8,9 @@ const user_enrolled = document.getElementsByClassName('enrolled-courses-list')
 const course_diplay = document.getElementsByClassName('recommended-course')
 const user_progress_score = document.getElementsByClassName('progress-score')
 
+// to display box when no course is there------------
+const course_area  = document.getElementsByClassName('course_area')
+
 // to show message to the user-----------------------
 // show message to the user
 function info_msg(msg, color = 'info') {
@@ -19,16 +22,19 @@ function info_msg(msg, color = 'info') {
         </div>
     `;
 
-    document.body.insertAdjacentHTML('afterbegin', mssg);
+    document.body.insertAdjacentHTML('afterbegin', mssg)
 
     // to remove error after 1second-------------
     setTimeout(() => {
-        const alertEl = document.querySelector('.alert');
+        const alertEl = document.querySelector('.alert')
         if (alertEl) {
-            bootstrap.Alert.getOrCreateInstance(alertEl).close();
+            bootstrap.Alert.getOrCreateInstance(alertEl).close()
         }
-    }, 1000);
+        // refresh whole page after 1 second
+        location.reload()
+    }, 1000)
 }
+
 
 // to set user_name for the page--------------
 function setUserName(user_name=null) {
@@ -60,7 +66,7 @@ function showUserCourse(coursename,progress,course_id) {
                 <div class="bar-stick" style="width: ${Math.trunc(progress)}%;"></div>
             </div>
             <div class="d-flex justify-content-between mt-2">
-                <span style="font-size: 0.85rem; color: #64748b;">${progress}% completed</span>   
+                <span style="font-size: 0.85rem; color: #64748b;">${progress.toFixed(2)}% completed</span>   
             </div>
             <button class="btn btn-primary btn-sm mt-3 w-100 rounded-pill" course_id=${course_id} onclick='startLearning(this)'>Continue Learning <i class="bi bi-arrow-right"></i></button>
         </div>
@@ -119,11 +125,11 @@ fetch('/user_courses/data').then(e => e.json())
     certi_count.innerText = data[data.length-1].certificate_count
 
     // console.log(data)
-    if (data.length===0) {
-        console.log('no course founded!!!')
+    if (data.length<3) {
+        course_area[0].classList.remove('d-none')
         return
     }
-
+    course_area[0].classList.add('d-none')
     for (let index = 0; index < data.length-2; index++) {
         key = data[index]
         showUserCourse(key.course_title,key.course_progress,key.course_id)
@@ -136,9 +142,10 @@ fetch('/user_courses/data').then(e => e.json())
 fetch('/courses/data').then(e => e.json())
 .then(data => {
     if (data.length===0) {
-        console.log('no course founded!!!')
+        course_area[1].classList.remove('d-none')
         return
     }
+    course_area[1].classList.add('d-none')
     // console.log(data)
     for (const key of data) {
         showRecommendedCourses(key.course_title,key.course_owner,key.course_price,key.course_id)
@@ -194,7 +201,7 @@ function buyPoints(btn) {
         })
     }).then (e=>e.json())
     .then(data => {
-        info_msg(data.message,'info')
+        info_msg(data.message,'success')
     })
     .catch(err => console.error(err))
 }

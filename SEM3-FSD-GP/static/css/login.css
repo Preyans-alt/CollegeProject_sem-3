@@ -144,6 +144,29 @@ body {
     display: block;
 }
 
+#role-check {
+    display: inline-flex;
+    align-items: center;
+    gap: 4px;          /* controls space between box & text */
+    margin-top: 10px;
+    font-size: 13px;
+}
+
+#role-check input[type="checkbox"] {
+    margin: 0;         /* removes browser default gap */
+    width: 14px;
+    height: 14px;
+}
+
+#role-check label {
+    margin: 0;
+    padding: 0;
+    line-height: 1;
+    cursor: pointer;
+    color: #1d4ed8;
+}
+
+
 
 
 @media (max-width: 768px) {

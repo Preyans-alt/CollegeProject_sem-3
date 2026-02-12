@@ -22,24 +22,44 @@ def login_page():
         data = request.form
         
         # if signup page is open---------------------
-        if len(list(data))==3:
+        if len(list(data))>=3:
             # to check user already there or not---
             if not database.getUserData(data['user_email']):
-
+                # print('xxx')
                 database.addUser(data['user_name'],data['user_email'],generate_password_hash(data['user_pass']))
-                # to add user id in session storage---------------------
+                # to add user id and work in session storage---------------------
+
                 session['user_id'] = database.getUserData(data['user_email'])[0]
+
+                # to check wheather it is instituate or not---------
+                isInstituate = True if 'roleCheck' in data else False
+                if isInstituate:
+                    database.addInstituate(session['user_id'])
+
+                session['isInstituate'] = database.isInstituate(session['user_id'])
+
+                # to launch the page instance or user_home_page---------
+                if session['isInstituate']:
+                    return redirect(url_for('instituate_page'))
                 return redirect(url_for('user_home_page'))
+            
             else:
                 return render_template('login_page.html',error={'mode':'signup','msg':'User Already Exits!!!'})
+            
         # when signin page is open----------
         else:
             real_passwd = database.verifyUser(data['user_email'])
             if real_passwd and check_password_hash(real_passwd,data['user_pass']):
                 # to add user id in session storage---------------------
                 session['user_id'] = database.getUserData(data['user_email'])[0]
+                session['isInstituate'] = database.isInstituate(session['user_id'])
 
+                # to launch the page instance or user_home_page---------
+                if session['isInstituate']:
+                    return redirect(url_for('instituate_page'))
+                
                 return redirect(url_for('user_home_page'))
+            
             else:
                 return render_template('login_page.html',error={'mode':'signin','msg':'No Such User Data Founded!!!'})
 
@@ -47,6 +67,7 @@ def login_page():
     return render_template('login_page.html',error={'mode':'signin','msg':''})
 
 
+# for user home page0--------------------------
 @app.route('/home')
 def user_home_page():
     if 'user_id' not in session:
@@ -54,6 +75,32 @@ def user_home_page():
     
     return render_template('home_page.html')
 
+# for instituate home page-----------------------
+@app.route('/Instituate')
+
+def instituate_page():
+    if 'user_id' not in session:
+        return ('<h1>No user Founded!</h1>')
+    user_id = session['user_id']
+
+    instituate_data = {}
+    instituate_name = database.getUserData2(user_id)
+    courses_data = database.instituateCourse(user_id)
+    # print(courses_data)
+    total_course = len(courses_data[0])
+    enrolled_course = len(courses_data[1])
+
+    instituate_data['instituate_name'] = instituate_name[0]
+    instituate_data['total_course'] = total_course
+    instituate_data['enrolled_course'] = enrolled_course
+    return render_template('instituate_page.html',instituate_data = instituate_data)
+
+# to send result data for instituate page purpose---------
+@app.route('/getResultForInstituate')
+def InstituateResultData():
+
+    data = database.getResultForInstituate(session['user_id'])
+    return jsonify(data)
 
 # to get data from js and store it to server--------------------------
 # to create new course data---------------------------
@@ -100,8 +147,15 @@ def toSendUserEnrolledCourse():
     compelted_count = 0
     for i in recive_data:
         progress = database.getCourseProgress(session['user_id'],i['course_id'])
-        if progress==100:
+        quiz_attemp = database.getResultData2(session['user_id'])
+        if progress==100 and len(quiz_attemp)>0:
             compelted_count += 1
+        
+        
+        
+        if len(quiz_attemp)<=0:
+            if progress>0:
+                progress -= 1
 
         course_data.append({
             'course_id':i['course_id'],
@@ -294,6 +348,28 @@ def buyPoints():
             database.addBalance(user_id,points)
         return jsonify({'message':'Successfully Buy'})
     return jsonify({'message':'Fails To Buy'})
+
+
+# to launch instituate_user_page--------------
+@app.route('/instituate_user')
+def openInstituateUser():
+    return render_template('instituate_user.html')
+
+# to send particular instituate_page courses data--------
+@app.route('/instituatesCourses')
+def getInstituatesCourses():
+    data = database.instituateCourse(session['user_id'])[0]
+    return jsonify(data)
+
+@app.route('/instituateStudentData')
+def getInstituateStudent():
+    data = database.getInstituateStudent(session['user_id'])
+    return jsonify(data)
+
+@app.route('/GeneralData')
+def getGeneralData():
+    data = database.getGeneralUserData()
+    return jsonify(data)
 
 if __name__ == '__main__':
     app.run(debug=True)
