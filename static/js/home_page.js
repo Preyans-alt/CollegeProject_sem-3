@@ -1,8 +1,3 @@
-
-
-
-
-
 const user_name_field = document.getElementById('page_user_name')
 
 const enroll_count = document.getElementById('enroll_count')
