@@ -395,7 +395,7 @@ class MyDataMethods:
 
         query = 'SELECT * FROM  COURSES WHERE USER_ID=%s'
         cursor.execute(query,(user_id,))
-        ln = len(cursor.fetchall())
+        course_data = cursor.fetchall()
 
         query = 'SELECT ENROLLMENT.user_id FROM ENROLLMENT INNER JOIN COURSES ON ENROLLMENT.course_id = COURSES.course_id WHERE COURSES.USER_ID=%s'
         cursor.execute(query,(user_id,))
@@ -404,7 +404,7 @@ class MyDataMethods:
         cursor.close()
         db.close()
         # return len of course of that instituate and len of enrrolment data of that course-------
-        return [ln,data]
+        return [course_data,data]
     
     def getResultForInstituate(self,user_id):
         db = self.dataBase()
@@ -418,6 +418,33 @@ class MyDataMethods:
         cursor.close()
         db.close()
         # return len of course of that instituate and len of enrrolment data of that course-------
+        return data
+    
+    def getInstituateStudent(self,owner_id):
+        db = self.dataBase()
+        cursor = db.cursor(cursor_factory=psycopg2.extras.RealDictCursor)
+
+        query = 'SELECT USERS.NAME,USERS.EMAIL,COURSES.COURSE_TITLE,COURSES.JOIN_DATE FROM USERS INNER JOIN ENROLLMENT ON ENROLLMENT.USER_ID=USERS.USER_ID INNER JOIN COURSES ON ENROLLMENT.COURSE_ID = COURSES.COURSE_ID WHERE COURSES.USER_ID=%s'
+
+        cursor.execute(query,(owner_id,))
+        data = cursor.fetchall()
+
+        cursor.close()
+        db.close()
+        return data
+    
+    # to get all users data in dataBase---------
+    def getGeneralUserData(self):
+        db = self.dataBase()
+        cursor = db.cursor(cursor_factory=psycopg2.extras.RealDictCursor)
+
+        query = 'SELECT * FROM USERS'
+
+        cursor.execute(query)
+        data = cursor.fetchall()
+
+        cursor.close()
+        db.close()
         return data
 
 if __name__ == '__main__':

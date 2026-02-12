@@ -66,7 +66,7 @@ function showUserCourse(coursename,progress,course_id) {
                 <div class="bar-stick" style="width: ${Math.trunc(progress)}%;"></div>
             </div>
             <div class="d-flex justify-content-between mt-2">
-                <span style="font-size: 0.85rem; color: #64748b;">${progress}% completed</span>   
+                <span style="font-size: 0.85rem; color: #64748b;">${progress.toFixed(2)}% completed</span>   
             </div>
             <button class="btn btn-primary btn-sm mt-3 w-100 rounded-pill" course_id=${course_id} onclick='startLearning(this)'>Continue Learning <i class="bi bi-arrow-right"></i></button>
         </div>

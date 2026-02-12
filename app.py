@@ -87,7 +87,7 @@ def instituate_page():
     instituate_name = database.getUserData2(user_id)
     courses_data = database.instituateCourse(user_id)
     # print(courses_data)
-    total_course = courses_data[0]
+    total_course = len(courses_data[0])
     enrolled_course = len(courses_data[1])
 
     instituate_data['instituate_name'] = instituate_name[0]
@@ -348,6 +348,28 @@ def buyPoints():
             database.addBalance(user_id,points)
         return jsonify({'message':'Successfully Buy'})
     return jsonify({'message':'Fails To Buy'})
+
+
+# to launch instituate_user_page--------------
+@app.route('/instituate_user')
+def openInstituateUser():
+    return render_template('instituate_user.html')
+
+# to send particular instituate_page courses data--------
+@app.route('/instituatesCourses')
+def getInstituatesCourses():
+    data = database.instituateCourse(session['user_id'])[0]
+    return jsonify(data)
+
+@app.route('/instituateStudentData')
+def getInstituateStudent():
+    data = database.getInstituateStudent(session['user_id'])
+    return jsonify(data)
+
+@app.route('/GeneralData')
+def getGeneralData():
+    data = database.getGeneralUserData()
+    return jsonify(data)
 
 if __name__ == '__main__':
     app.run(debug=True)

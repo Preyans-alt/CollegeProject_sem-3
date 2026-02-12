@@ -6,8 +6,9 @@ const nav_name_publice = document.getElementById('nav_name_publice')
 
 nav_name_publice.classList.remove('d-none')
 nav_name_dashboard.setAttribute('href','#')
-nav_name_certi.classList.add('d-none')
-nav_name_courses.classList.add('d-none') 
+nav_name_courses.classList.add('d-none')
+nav_name_certi.innerText = 'UserBoard'
+nav_name_certi.setAttribute('href','/instituate_user')
 nav_name_logo.setAttribute('href','#')
 
 
