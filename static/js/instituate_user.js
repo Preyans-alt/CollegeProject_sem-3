@@ -57,6 +57,9 @@ function renderStudent(search=null) {
     .then(data => {
         document.getElementById('instituate_student').innerText = data.length
         for (const element of data) {
+            if (search && search==='All Courses') {
+                addUserList(element.name,element.email,element.course_title,element.join_date)
+            }
             if (search) {
                 if (element.course_title == search) {
                     addUserList(element.name,element.email,element.course_title,element.join_date)
