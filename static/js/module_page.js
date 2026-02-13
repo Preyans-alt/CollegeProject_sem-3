@@ -1,13 +1,13 @@
 /* ===================== COURSE PART ===================== */
-const course_title = document.getElementById('course-title');
-const course_chapters_name = document.querySelector('#course-chapters');
+const course_title = document.getElementById('course-title')
+const course_chapters_name = document.querySelector('#course-chapters')
 const default_view = document.querySelector('.default-view')
-const teaching_part = document.querySelector('.video-container');
-const video_title = document.querySelector('#video-title');
-const video_url = document.querySelector('iframe');
-const chapter_overview = document.querySelector('#overview p');
-const chapter_notes = document.querySelector('#notes_url');
-const markCompleteBtn = document.querySelector('#markCompleteBtn');
+const teaching_part = document.querySelector('.video-container')
+const video_title = document.querySelector('#video-title')
+const video_url = document.querySelector('iframe')
+const chapter_overview = document.querySelector('#overview p')
+const chapter_notes = document.querySelector('#notes_url')
+const markCompleteBtn = document.querySelector('#markCompleteBtn')
 
 
 // to show message to user---------
@@ -18,17 +18,18 @@ function info_msg(msg, color = 'info') {
             ${msg}
             <button type="button" class="btn-close" data-bs-dismiss="alert"></button>
         </div>
-    `;
+    `
 
-    document.body.insertAdjacentHTML('afterbegin', mssg);
+    document.body.insertAdjacentHTML('afterbegin', mssg)
 
     // to remove error after 1second-------------
     setTimeout(() => {
-        const alertEl = document.querySelector('.alert');
+        const alertEl = document.querySelector('.alert')
         if (alertEl) {
-            bootstrap.Alert.getOrCreateInstance(alertEl).close();
+            bootstrap.Alert.getOrCreateInstance(alertEl).close()
         }
-    }, 1000);
+        location.reload()
+    }, 1000)
 }
 
 
@@ -54,6 +55,36 @@ function add_courses_name(list) {
     })
 }
 
+function add_chapter_status() {
+    fetch('/chapterStatus',{
+        method: "POST",
+        headers: {"Content-Type": "application/json"},
+        body: JSON.stringify({
+            courseId: current_course
+        })
+    })
+    .then(res => res.json())
+    .then(data => {
+        const temp = []
+        for (const element of data) {
+            if (element.is_completed) {
+                temp.push(element.chapter_id)
+            }
+        }
+        const buttons = document.querySelectorAll('.chapter-btn')
+        buttons.forEach((btn) => {
+            // console.log(temp.includes(parseInt(btn.getAttribute('chapter_id'))))
+            
+            if (temp.includes(parseInt(btn.getAttribute('chapter_id')))) {
+                btn.classList.add('border-success')
+                btn.classList.add('bg-success-subtle')
+                btn.querySelector('.badge').innerHTML = `
+                    <i class="bi bi-check-circle-fill text-success"></i>
+                `
+            }
+        })
+    })
+}
 
 // Fetch course data
 fetch(`/courseData/${current_course}`)
@@ -67,7 +98,13 @@ fetch(`/courseData/${current_course}`)
         names.push([data[i].chapter_id, data[i].chapter_title]);
     }
     add_courses_name(names);
-});
+    add_chapter_status()
+})
+
+// to fetch chapter status-------
+
+
+
 
 // Chapter click
 course_chapters_name.addEventListener('click', e => {

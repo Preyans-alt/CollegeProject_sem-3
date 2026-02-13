@@ -294,6 +294,18 @@ class MyDataMethods:
         cursor.close()
         db.close()
 
+    def getCompleteChapterData(self,user_id,course_id):
+        db = self.dataBase()
+        cursor = db.cursor(cursor_factory=psycopg2.extras.RealDictCursor)
+
+        query = 'SELECT * FROM course_progress WHERE user_id=%s and COURSE_ID=%s and is_completed=%s'
+        cursor.execute(query,(user_id,course_id,True))
+        data = cursor.fetchall()
+        cursor.close()
+        db.close()
+
+        return data
+
     
     # to get questions data for that course-------------------
     def getQuestionsData(self,course_id):
@@ -375,19 +387,40 @@ class MyDataMethods:
     
     # if user already has amount in balance the to update it -------------------
     # when user do any process like buy course ,sell course,buy points-----------
-    def updateBalance(self,user_id,amount,reduce=True):
+    def updateBalance(self, user_id, amount, reduce=True):
         db = self.dataBase()
         cursor = db.cursor()
-        # if reduce is True then it means user user want to reduce balance---------
-        if reduce:
-            query = 'UPDATE BALANCE SET AMOUNT=AMOUNT-%s WHERE USER_ID=%s'
-        else:
-            query = 'UPDATE BALANCE SET AMOUNT=AMOUNT+%s WHERE USER_ID=%s'
 
-        cursor.execute(query,(amount,user_id))
+        # 🔎 Check if user already exists in BALANCE table
+        check_query = "SELECT amount FROM BALANCE WHERE user_id = %s"
+        cursor.execute(check_query, (user_id,))
+        result = cursor.fetchone()
+
+        if result is None:
+            # 🚀 User not found → Insert new record
+            
+            if reduce:
+                new_amount = -amount
+            else:
+                new_amount = amount
+
+            insert_query = "INSERT INTO BALANCE (user_id, amount) VALUES (%s, %s)"
+            cursor.execute(insert_query, (user_id, new_amount))
+
+        else:
+            # ✅ User exists → Update balance
+            
+            if reduce:
+                update_query = "UPDATE BALANCE SET amount = amount - %s WHERE user_id = %s"
+            else:
+                update_query = "UPDATE BALANCE SET amount = amount + %s WHERE user_id = %s"
+
+            cursor.execute(update_query, (amount, user_id))
+
         db.commit()
         cursor.close()
         db.close()
+
 
     def instituateCourse(self,user_id):
         db = self.dataBase()
@@ -424,7 +457,7 @@ class MyDataMethods:
         db = self.dataBase()
         cursor = db.cursor(cursor_factory=psycopg2.extras.RealDictCursor)
 
-        query = 'SELECT USERS.NAME,USERS.EMAIL,COURSES.COURSE_TITLE,COURSES.JOIN_DATE FROM USERS INNER JOIN ENROLLMENT ON ENROLLMENT.USER_ID=USERS.USER_ID INNER JOIN COURSES ON ENROLLMENT.COURSE_ID = COURSES.COURSE_ID WHERE COURSES.USER_ID=%s'
+        query = 'SELECT USERS.NAME,USERS.EMAIL,COURSES.COURSE_TITLE,COURSES.JOIN_DATE,COURSES.COURSE_PRICE FROM USERS INNER JOIN ENROLLMENT ON ENROLLMENT.USER_ID=USERS.USER_ID INNER JOIN COURSES ON ENROLLMENT.COURSE_ID = COURSES.COURSE_ID WHERE COURSES.USER_ID=%s'
 
         cursor.execute(query,(owner_id,))
         data = cursor.fetchall()
@@ -433,6 +466,8 @@ class MyDataMethods:
         db.close()
         return data
     
+
+
     # to get all users data in dataBase---------
     def getGeneralUserData(self):
         db = self.dataBase()

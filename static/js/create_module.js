@@ -1,11 +1,16 @@
-document.getElementById('nav_name_courses').classList.add('d-none')
-document.getElementById('nav_name_dashboard').setAttribute('href','/Instituate')
-document.getElementById('nav_name_logo').setAttribute('href','#')
-document.getElementById('nav_name_publice').classList.remove('d-none')
-
+const nav_name_dashboard = document.getElementById('nav_name_dashboard') 
 const nav_name_certi = document.getElementById('nav_name_certi') 
+const nav_name_courses = document.getElementById('nav_name_courses') 
+const nav_name_logo = document.getElementById('nav_name_logo')
+const nav_name_publice = document.getElementById('nav_name_publice')
+
+nav_name_publice.classList.remove('d-none')
+nav_name_dashboard.setAttribute('href','/Instituate')
+nav_name_courses.classList.add('d-none')
 nav_name_certi.innerText = 'UserBoard'
 nav_name_certi.setAttribute('href','/instituate_user')
+document.querySelector('#nav_name_text').setAttribute('href','/instituateProfile')
+
 
 const module_submit = document.getElementById('module_submit')
 // to store question when addQuestion click----------

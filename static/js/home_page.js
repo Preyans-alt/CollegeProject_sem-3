@@ -11,6 +11,10 @@ const user_progress_score = document.getElementsByClassName('progress-score')
 // to display box when no course is there------------
 const course_area  = document.getElementsByClassName('course_area')
 
+// to display user name in nav bar----------
+const nav_name_text  = document.getElementById('nav_name_text')
+const nav_name_logo  = document.getElementById('nav_user_logo')
+
 // to show message to the user-----------------------
 // show message to the user
 function info_msg(msg, color = 'info') {
@@ -38,7 +42,9 @@ function info_msg(msg, color = 'info') {
 
 // to set user_name for the page--------------
 function setUserName(user_name=null) {
+    nav_name_text.innerText = user_name
     user_name_field.innerText = user_name
+    nav_name_logo.setAttribute('src',`https://placehold.co/30x30/png?text=${user_name[0].toUpperCase()}`)
 }
 
 

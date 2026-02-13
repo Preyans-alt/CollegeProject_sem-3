@@ -1,12 +1,11 @@
 document.getElementById('nav_name_courses').classList.add('d-none')
 document.getElementById('nav_name_dashboard').setAttribute('href','/Instituate')
-document.getElementById('nav_name_logo').setAttribute('href','#')
 document.getElementById('nav_name_publice').classList.remove('d-none')
 
 const nav_name_certi = document.getElementById('nav_name_certi') 
 nav_name_certi.innerText = 'UserBoard'
 nav_name_certi.setAttribute('href','/instituate_user')
-
+document.querySelector('#nav_name_text').setAttribute('href','/instituateProfile')
 
 
 function addUserList(user_name,user_email,user_course,join_date) {

@@ -1,7 +1,7 @@
 from flask import Flask,render_template,url_for,request,redirect,session,jsonify
 from werkzeug.security import generate_password_hash,check_password_hash
 from python_db_methods import MyDataMethods
-
+import email
 app = Flask(__name__)
 
 app.secret_key = 'secret123'
@@ -37,7 +37,7 @@ def login_page():
                     database.addInstituate(session['user_id'])
 
                 session['isInstituate'] = database.isInstituate(session['user_id'])
-
+                session['user_email'] = data['user_email']
                 # to launch the page instance or user_home_page---------
                 if session['isInstituate']:
                     return redirect(url_for('instituate_page'))
@@ -53,7 +53,7 @@ def login_page():
                 # to add user id in session storage---------------------
                 session['user_id'] = database.getUserData(data['user_email'])[0]
                 session['isInstituate'] = database.isInstituate(session['user_id'])
-
+                session['user_email'] = data['user_email']
                 # to launch the page instance or user_home_page---------
                 if session['isInstituate']:
                     return redirect(url_for('instituate_page'))
@@ -230,7 +230,13 @@ def sendChaptersData(course_id):
     else:
         return jsonify({'data':'hello'})
 
-
+@app.route('/chapterStatus',methods=["POST"])
+def sendChapterStatus():
+    if request.method == 'POST':
+        data = request.get_json()
+        data = database.getCompleteChapterData(session['user_id'],data['courseId'])
+        return jsonify(data)
+    
 # to mark chapter as completed--------------------
 @app.route('/chapterComplete',methods=["POST"])
 def markAsComplete():
@@ -264,7 +270,10 @@ def saveQuizData():
     if request.method == 'POST':
         data = request.get_json()
         database.addResultData(session['user_id'],data['courseId'],data['score'])
-
+        # user_name = database.getUserData2(session['user_id'])
+        # user_email = session['user_email']
+        # course_name = database.getParticularCourseDetail(data['courseId'])[0]['course_title']
+        # email.send_email(user_email,user_name,course_name,data['score'])
         return jsonify({'message':'sucessfull'})
     
 
@@ -322,7 +331,7 @@ def show_profile():
     course_details = toSendUserEnrolledCourse().get_json()
     course_completed = course_details[len(course_details)-2]['completed']
     active_course = len(toSendUserEnrolledCourse().get_json()[0:-2])
-    print(toSendUserEnrolledCourse().get_json())
+    # print(toSendUserEnrolledCourse().get_json())
     return render_template('profile.html',data = [user_name[0],balance[0],course_completed,active_course])
 
 # when user log out---------------------------------
@@ -369,6 +378,15 @@ def getInstituateStudent():
 @app.route('/GeneralData')
 def getGeneralData():
     data = database.getGeneralUserData()
+    return jsonify(data)
+
+@app.route('/instituateProfile')
+def showInstituateprofile():
+    return render_template('instituateProfile.html')
+
+@app.route('/instituateReveneu')
+def getInstituateRevenu():
+    data = database.getInstituateStudent(session['user_id'])
     return jsonify(data)
 
 if __name__ == '__main__':
