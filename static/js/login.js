@@ -142,6 +142,7 @@ form.addEventListener('submit', (e) => {
         pass_error.classList.add('show_error')
         error = true
     }
+
     
     if (!error) {
         form.submit()

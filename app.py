@@ -56,18 +56,14 @@ def login_page():
                 session['user_id'] = database.getUserData(data['user_email'])[0]
                 session['isInstituate'] = database.isInstituate(session['user_id'])
 
-                if 'isInstituate' in session:
+                session['user_email'] = data['user_email']
+
+                if session['isInstituate']:
                     user_name = database.getUserData2(session['user_id'])
                     ori_otp = SendEmail.admin_login_email(user_name)
-                    user_otp = int(input('enter otp:- '))
-
-                    if user_otp != ori_otp:
-                        return ('<h1>Envaild Otp!!!</h1>')
-                    # to launch the page instance or user_home_page---------
-                    if session['isInstituate']:
-                        return redirect(url_for('instituate_page'))
-                    
-                session['user_email'] = data['user_email']
+                    session['otp'] = ori_otp
+                    return redirect(url_for('otp_page'))
+                
                 
                 return redirect(url_for('user_home_page'))
             
@@ -77,6 +73,20 @@ def login_page():
     
     return render_template('login_page.html',error={'mode':'signin','msg':''})
 
+# for otp verification-------------
+@app.route('/otp', methods=['GET', 'POST'])
+def otp_page():
+    if request.method == 'POST':
+        user_otp = request.form.get('otp')
+
+        if int(user_otp) == session.get('otp'):
+            # remove otp after success
+            session.pop('otp', None)  
+            return redirect(url_for('instituate_page'))
+        else:
+            return "<h1>Invalid OTP</h1>"
+
+    return render_template('otp.html')
 
 # for user home page0--------------------------
 @app.route('/home')
