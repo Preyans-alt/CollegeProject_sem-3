@@ -283,12 +283,12 @@ class MyDataMethods:
         cursor = db.cursor()
 
         query = 'SELECT IS_COMPLETED FROM course_progress WHERE USER_ID=%s AND COURSE_ID=%s AND CHAPTER_ID=%s'
-        cursor.execute(query,(user_id,course_id,chapter_id))
+        cursor.execute(query,(user_id,course_id,int(chapter_id)))
         data = cursor.fetchone()
 
         if not data:
             query = 'INSERT INTO COURSE_PROGRESS (USER_ID,COURSE_ID,CHAPTER_ID,IS_COMPLETED) VALUES (%s,%s,%s,%s)'
-            cursor.execute(query,(user_id,course_id,chapter_id,True))
+            cursor.execute(query,(user_id,course_id,int(chapter_id),True))
             db.commit()
 
         cursor.close()
